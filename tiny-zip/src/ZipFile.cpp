@@ -35,5 +35,17 @@ bool ZipFile::parseInFileEntries() {
 	size_t size = this->m_fileStream.tellp();
 	this->m_fileStream.seekg(0);
 
-	return false;
+	if (size <= sizeof(ZIP_HEADER)) {
+		return false;
+	}
+
+	ZIP_HEADER header = {};
+
+	this->m_fileStream.read((char*)&header, sizeof(header));
+
+	if (header.signature != 0x04034b50) {
+		return false;
+	}
+
+	return true;
 }

@@ -4,15 +4,24 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <cstdint>
 
 #include "./Packed.hpp"
 
 namespace Zip {
-
-	struct_packed ZIP_HEADER{
+	START_PACKED struct ZIP_HEADER{
 		uint32_t signature;
 		uint16_t version_needed;
-	};
+		uint16_t flags;
+		uint16_t compressionMethod;
+		uint16_t modificationTime;
+		uint16_t modificationDate;
+		uint32_t crc32;
+		uint32_t compressedSize;
+		uint32_t uncompressedSize;
+		uint16_t fileNameLen;
+		uint16_t extraFieldLen;
+	} END_PACKED;
 
 	enum OpenMode {
 		in,
