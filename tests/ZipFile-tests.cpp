@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "ZipFile.hpp"
 #include <filesystem>
+#include <unordered_map>
 
 
 TEST(ZipFileTest, can_open_not_existing_file) {
@@ -56,4 +57,45 @@ TEST(ZipFileTest, can_uncompress_simple_archive) {
 	EXPECT_EQ(entry.data().size(), size);
 	EXPECT_EQ(memcmp(data.data(), entry.data().data(), size), 0);
 }
+
+TEST(ZipFileTest, can_uncompress_more_one_entry) {
+	auto zip = Zip::ZipFile("tests-data/data-no-compressed.zip", Zip::OpenMode::in);
+
+	EXPECT_TRUE(zip.parseEntries());
+	std::unordered_map<std::string, std::string> expected_entries = {
+		{"test-folder-1/" , ""},
+		{"test-folder-1/subfolder-1/" , ""},
+		{"test-folder-1/test-1.txt" , "test-1"},
+		{"test-folder-1/test-2.txt" , "test-2"},
+		{"test-folder-1/subfolder-1/test-1.txt" , "test-1"},
+		{"test-folder-1/subfolder-1/test-2.txt" , "test-2"}
+	};
+
+	auto entries = zip.getEntries();
+	EXPECT_EQ(entries.size(), expected_entries.size());
+
+	for (auto &entry : entries) {
+		auto expected = expected_entries.find(entry.fileName());
+
+		if (expected == expected_entries.end()) {
+			continue;
+		}
+
+		if (expected->second.size() != entry.size()) {
+			continue;
+		}
+
+		auto res = memcmp(expected->second.data(), entry.data().data(), entry.size());
+		EXPECT_EQ(res, 0);
+
+		if (res != 0) {
+			continue;
+		}
+
+		expected_entries.erase(entry.fileName());
+	}
+
+	EXPECT_EQ(expected_entries.size(), 0);
+};
+
 

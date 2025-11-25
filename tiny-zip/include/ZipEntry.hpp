@@ -20,9 +20,9 @@ namespace Zip {
 	class ZipEntry
 	{
 	public:
-		ZipEntry(const LOCAL_FILE_HEADER &_header, std::string _fileName, std::vector<uint8_t> _extFields, std::vector<uint8_t> _data) {
+		ZipEntry(const LOCAL_FILE_HEADER& _header, std::string _fileName, std::vector<uint8_t> _extFields, std::vector<uint8_t> _data) {
 			this->m_fileName = _fileName;
-			
+
 			if (_header.compressionMethod != CompressAlgo::NoCompression) {
 				this->m_dataCompressed = _data;
 			}
@@ -51,6 +51,7 @@ namespace Zip {
 		}
 
 		uint32_t checksum();
+		std::string fileName() { return this->m_fileName; }
 
 		std::vector<uint8_t> data() {
 			return this->m_data;
