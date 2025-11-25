@@ -67,5 +67,5 @@ bool ZipFile::parseInFileEntries() {
 		}
 	}
 
-	return m_entries.size() != 0;
+	return m_entries.size() != 0 && size != 0;
 }
