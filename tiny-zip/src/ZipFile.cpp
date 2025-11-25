@@ -7,6 +7,7 @@ void ZipFile::open(const std::string& _path, OpenMode _mode) {
 	this->m_mode = _mode;
 
 	auto fstreamMode = _mode == OpenMode::in ? std::ios::ios_base::in : std::ios::ios_base::out;
+	fstreamMode |= std::ios_base::binary;
 
 	this->m_fileStream.open(_path, fstreamMode);
 }
@@ -35,17 +36,36 @@ bool ZipFile::parseInFileEntries() {
 	size_t size = this->m_fileStream.tellp();
 	this->m_fileStream.seekg(0);
 
-	if (size <= sizeof(ZIP_HEADER)) {
+	if (size <= sizeof(LOCAL_FILE_HEADER)) {
 		return false;
 	}
 
-	ZIP_HEADER header = {};
+	while (this->m_fileStream.eof() == false) {
+		LOCAL_FILE_HEADER header = {};
 
-	this->m_fileStream.read((char*)&header, sizeof(header));
+		this->m_fileStream.read((char*)&header, sizeof(header));
 
-	if (header.signature != 0x04034b50) {
-		return false;
+		if (header.signature == 0x04034b50) {
+			std::string fileNameStr;
+			std::vector<uint8_t> extFields;
+			std::vector<uint8_t> data;
+
+			fileNameStr.resize(header.fileNameLen);
+			this->m_fileStream.read(fileNameStr.data(), header.fileNameLen);
+			
+			extFields.resize(header.extraFieldLen);
+			this->m_fileStream.read((char*)extFields.data(), header.extraFieldLen);
+
+			data.resize(header.compressedSize);
+			this->m_fileStream.read((char*)data.data(), header.compressedSize);
+
+			auto entry = ZipEntry(header, fileNameStr, extFields, data);
+			this->m_entries.push_back(entry);
+		}
+		else {
+			break;
+		}
 	}
 
-	return true;
+	return m_entries.size() != 0;
 }

@@ -6,23 +6,9 @@
 #include <vector>
 #include <cstdint>
 
-#include "./Packed.hpp"
+#include "ZipEntry.hpp"
 
 namespace Zip {
-	START_PACKED struct ZIP_HEADER{
-		uint32_t signature;
-		uint16_t version_needed;
-		uint16_t flags;
-		uint16_t compressionMethod;
-		uint16_t modificationTime;
-		uint16_t modificationDate;
-		uint32_t crc32;
-		uint32_t compressedSize;
-		uint32_t uncompressedSize;
-		uint16_t fileNameLen;
-		uint16_t extraFieldLen;
-	} END_PACKED;
-
 	enum OpenMode {
 		in,
 		out,
@@ -41,15 +27,17 @@ namespace Zip {
 		}
 
 		~ZipFile() {
-
+			this->m_fileStream.close();
 		}
 
 		void openMemory(const std::vector<uint8_t> _data);
 		void open(const std::string& _path, OpenMode _mode);
 		bool is_open();
 		bool parseEntries();
+		std::vector<ZipEntry> getEntries() { return this->m_entries; }
 
 	private:
+		std::vector<ZipEntry> m_entries;
 		std::string m_path;
 		OpenMode m_mode;
 		std::fstream m_fileStream;
