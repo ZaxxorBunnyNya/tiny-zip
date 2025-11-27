@@ -1,5 +1,5 @@
 #include "ZipEntry.hpp"
-#include <memory>
+#include <cstring>
 
 using namespace Zip;
 
