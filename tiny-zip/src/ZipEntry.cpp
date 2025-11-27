@@ -1,4 +1,5 @@
 #include "ZipEntry.hpp"
+#include <memory>
 
 using namespace Zip;
 
