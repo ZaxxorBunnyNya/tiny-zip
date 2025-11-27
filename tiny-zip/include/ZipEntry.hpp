@@ -8,13 +8,14 @@
 
 namespace Zip {
 
-	enum CompressAlgo {
+	enum CompressMethod {
 		NoCompression = 0,
 		Shrink = 1,
 		CompressFactor1 = 2,
 		CompressFactor2 = 3,
 		CompressFactor3 = 4,
 		CompressFactor4 = 5,
+		LZMA = 14,
 	};
 
 	class ZipEntry
@@ -23,12 +24,14 @@ namespace Zip {
 		ZipEntry(const LOCAL_FILE_HEADER& _header, std::string _fileName, std::vector<uint8_t> _extFields, std::vector<uint8_t> _data) {
 			this->m_fileName = _fileName;
 
-			if (_header.compressionMethod != CompressAlgo::NoCompression) {
+			if (_header.compressionMethod != CompressMethod::NoCompression) {
 				this->m_dataCompressed = _data;
 			}
 			else {
 				this->m_data = _data;
 			}
+
+			this->m_method = (CompressMethod)_header.compressionMethod;
 		}
 
 		~ZipEntry() {
@@ -62,7 +65,9 @@ namespace Zip {
 
 		std::vector<uint8_t> m_dataCompressed;
 		std::vector<uint8_t> m_data;
+		CompressMethod m_method;
 
+		bool uncompressLZMA();
 	};
 }
 

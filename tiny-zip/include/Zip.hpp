@@ -4,7 +4,7 @@
 #include "Packed.hpp"
 #include <cstdint>
 
-START_PACKED struct  LOCAL_FILE_HEADER {
+PACK( struct  LOCAL_FILE_HEADER {
 	uint32_t signature;
 	uint16_t version_needed;
 	uint16_t flags;
@@ -16,7 +16,13 @@ START_PACKED struct  LOCAL_FILE_HEADER {
 	uint32_t uncompressedSize;
 	uint16_t fileNameLen;
 	uint16_t extraFieldLen;
-} END_PACKED;
+});
+
+PACK (struct FILE_DESCRIPTOR {
+	uint32_t crc32;
+	uint32_t compressedSize;
+	uint32_t uncomressedSize;
+});
 
 
 #endif // !ZIP_H__

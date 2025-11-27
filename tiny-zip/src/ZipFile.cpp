@@ -1,6 +1,8 @@
 #include "ZipFile.hpp"
 
 using namespace Zip;
+#define BIT_IS_SET(value, bit_pos) ((value) & (1U << (bit_pos)))
+
 
 void ZipFile::open(const std::string& _path, OpenMode _mode) {
 	this->m_path = _path;
@@ -19,8 +21,7 @@ bool ZipFile::is_open() {
 bool ZipFile::parseEntries() {
 	if (this->m_mode == OpenMode::in) {
 		return this->parseInFileEntries();
-	}
-	else if (this->m_mode == OpenMode::out) {
+	} else if (this->m_mode == OpenMode::out) {
 		return this->parseInMemoryEntries();
 	}
 
@@ -49,12 +50,17 @@ bool ZipFile::parseInFileEntries() {
 			std::string fileNameStr;
 			std::vector<uint8_t> extFields;
 			std::vector<uint8_t> data;
+			FILE_DESCRIPTOR desc;
 
 			fileNameStr.resize(header.fileNameLen);
 			this->m_fileStream.read(fileNameStr.data(), header.fileNameLen);
 			
 			extFields.resize(header.extraFieldLen);
 			this->m_fileStream.read((char*)extFields.data(), header.extraFieldLen);
+
+			if (BIT_IS_SET(header.flags, 3) == true) {
+				this->m_fileStream.read((char*)&desc, sizeof(desc));
+			}
 
 			data.resize(header.compressedSize);
 			this->m_fileStream.read((char*)data.data(), header.compressedSize);

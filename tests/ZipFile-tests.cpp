@@ -98,4 +98,21 @@ TEST(ZipFileTest, can_uncompress_more_one_entry) {
 	EXPECT_EQ(expected_entries.size(), 0);
 };
 
+TEST(ZipFileTest, can_ucompress_compressed_lzma) {
+	auto zip = Zip::ZipFile("tests-data/simple-data-lzma.zip", Zip::OpenMode::in);
 
+	EXPECT_TRUE(zip.parseEntries());
+
+	auto entries = zip.getEntries();
+
+	EXPECT_EQ(entries.size(), 1);
+
+	auto entry = entries[0];
+	auto res = entry.uncompress();
+
+	EXPECT_TRUE(res);
+
+	if (res == false) {
+		return;
+	}
+}
